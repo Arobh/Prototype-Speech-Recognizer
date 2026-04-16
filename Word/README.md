@@ -103,3 +103,7 @@ This dataset is used to:
 
 Dataset created by:
 Pete Warden (Google AI)
+
+## download 
+kaggle:-
+ https://www.kaggle.com/datasets/yashdogra/speech-commands
