@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prototype Speech Recognizer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="recorder-panel" aria-labelledby="app-title">
+        <div class="title-row">
+          <div>
+            <p class="eyebrow">Whisper speech-to-text prototype</p>
+            <h1 id="app-title">Prototype Speech Recognizer</h1>
+          </div>
+          <div class="status-pill" id="status-pill" aria-live="polite">
+            Idle
+          </div>
+        </div>
+
+        <div class="meter" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <section class="waveform-section" aria-labelledby="waveform-title">
+          <h2 id="waveform-title">Audio Waveform</h2>
+          <canvas
+            id="waveform-canvas"
+            class="waveform-canvas"
+            aria-label="Live microphone waveform"
+          ></canvas>
+        </section>
+
+        <section class="spectrogram-section" aria-labelledby="spectrogram-title">
+          <h2 id="spectrogram-title">Spectrogram</h2>
+          <canvas
+            id="spectrogram-canvas"
+            class="spectrogram-canvas"
+            aria-label="Live audio spectrogram"
+          ></canvas>
+        </section>
+
+        <div class="controls" aria-label="Speech controls">
+          <button class="primary-button" id="start-button" type="button">
+            Start Recording
+          </button>
+          <button class="ghost-button" id="stop-button" type="button" disabled>
+            Stop
+          </button>
+          <button class="ghost-button" id="clear-button" type="button">
+            Clear
+          </button>
+        </div>
+
+        <div class="settings-grid">
+          <label class="field-picker" for="language-select">
+            Recognition language
+            <select id="language-select">
+              <option value="en">English</option>
+              <option value="hi">Hindi</option>
+              <option value="ta">Tamil</option>
+              <option value="te">Telugu</option>
+              <option value="">Auto detect</option>
+            </select>
+          </label>
+
+          <label class="field-picker" for="model-select">
+            Whisper model
+            <select id="model-select">
+              <option value="tiny">tiny - fastest</option>
+              <option value="base" selected>base - balanced</option>
+              <option value="small">small - better accuracy</option>
+            </select>
+          </label>
+        </div>
+
+        <section class="transcript-area" aria-labelledby="transcript-title">
+          <div class="transcript-heading">
+            <h2 id="transcript-title">Recognized Text</h2>
+            <button class="copy-button" id="copy-button" type="button">
+              Copy
+            </button>
+          </div>
+          <div class="transcript-box" id="transcript-box" aria-live="polite">
+            <p class="placeholder" id="placeholder">
+              Press Start Recording, speak into your microphone, then press Stop.
+            </p>
+            <p id="final-transcript"></p>
+            <p class="interim" id="interim-transcript"></p>
+          </div>
+        </section>
+
+        <section class="evaluation-section" aria-labelledby="evaluation-title">
+          <div class="section-heading">
+            <h2 id="evaluation-title">Word Error Rate</h2>
+            <button class="copy-button" id="evaluate-button" type="button">
+              Evaluate
+            </button>
+          </div>
+          <label class="text-field" for="reference-text">
+            Expected transcript
+            <textarea
+              id="reference-text"
+              rows="4"
+              placeholder="Type the correct sentence here, then compare it with Whisper output."
+            ></textarea>
+          </label>
+          <p class="metric-output" id="wer-result" aria-live="polite"></p>
+        </section>
+
+        <section class="dataset-section" aria-labelledby="dataset-title">
+          <div class="section-heading">
+            <h2 id="dataset-title">Dataset Audio Test</h2>
+            <div class="button-row">
+              <button class="primary-button" id="dataset-button" type="button">
+                Run Dataset Test
+              </button>
+              <button class="ghost-button" id="compare-models-button" type="button">
+                Compare Models
+              </button>
+              <button class="ghost-button" id="compare-vosk-button" type="button">
+                Compare Vosk
+              </button>
+              <button class="ghost-button" id="export-csv-button" type="button" disabled>
+                Download CSV
+              </button>
+            </div>
+          </div>
+          <div class="metadata-grid">
+            <label class="field-picker" for="speaker-id">
+              Speaker ID
+              <input id="speaker-id" type="text" placeholder="speaker_01" />
+            </label>
+            <label class="field-picker" for="environment-select">
+              Environment
+              <select id="environment-select">
+                <option value="quiet">Quiet room</option>
+                <option value="moderate-noise">Moderate noise</option>
+                <option value="high-noise">High noise</option>
+              </select>
+            </label>
+            <label class="field-picker" for="microphone-type">
+              Microphone
+              <input id="microphone-type" type="text" placeholder="Laptop mic" />
+            </label>
+            <label class="field-picker" for="noise-label">
+              Noise type
+              <input id="noise-label" type="text" placeholder="fan, traffic, classroom" />
+            </label>
+            <label class="field-picker" for="noise-augmentation-select">
+              Noise augmentation
+              <select id="noise-augmentation-select">
+                <option value="">None</option>
+                <option value="20">White noise at 20 dB SNR</option>
+                <option value="10">White noise at 10 dB SNR</option>
+                <option value="5">White noise at 5 dB SNR</option>
+              </select>
+            </label>
+          </div>
+          <label class="file-field" for="dataset-audio">
+            Audio samples
+            <input id="dataset-audio" type="file" accept="audio/*" multiple />
+          </label>
+          <label class="text-field" for="dataset-reference">
+            Expected transcript
+            <textarea
+              id="dataset-reference"
+              rows="4"
+              placeholder="Paste the reference text for this audio sample."
+            ></textarea>
+          </label>
+          <div class="dataset-output" aria-live="polite">
+            <h3>Whisper Output</h3>
+            <p id="dataset-transcript"></p>
+            <p class="metric-output" id="dataset-result"></p>
+            <p class="metric-output" id="dataset-time"></p>
+            <p class="metric-output" id="noise-result"></p>
+          </div>
+          <div class="error-analysis" aria-live="polite">
+            <h3>Error Analysis</h3>
+            <div class="error-grid">
+              <p><strong>Substitutions:</strong> <span id="substitution-output">None yet</span></p>
+              <p><strong>Deletions:</strong> <span id="deletion-output">None yet</span></p>
+              <p><strong>Insertions:</strong> <span id="insertion-output">None yet</span></p>
+            </div>
+          </div>
+          <div class="feature-grid">
+            <div>
+              <h3>Uploaded Audio Spectrogram</h3>
+              <canvas
+                id="uploaded-spectrogram-canvas"
+                class="feature-canvas"
+                aria-label="Uploaded audio spectrogram"
+              ></canvas>
+            </div>
+            <div>
+              <h3>MFCC Feature Map</h3>
+              <canvas
+                id="mfcc-canvas"
+                class="feature-canvas"
+                aria-label="MFCC feature map"
+              ></canvas>
+            </div>
+          </div>
+          <div class="chart-grid">
+            <div>
+              <h3>WER by Model</h3>
+              <canvas
+                id="wer-chart-canvas"
+                class="chart-canvas"
+                aria-label="WER by model chart"
+              ></canvas>
+            </div>
+            <div>
+              <h3>Processing Time by Model</h3>
+              <canvas
+                id="time-chart-canvas"
+                class="chart-canvas"
+                aria-label="Processing time by model chart"
+              ></canvas>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th>Speaker</th>
+                  <th>Environment</th>
+                  <th>Noise</th>
+                  <th>Model</th>
+                  <th>Engine</th>
+                  <th>WER</th>
+                  <th>Time</th>
+                  <th>SNR</th>
+                  <th>File</th>
+                  <th>Aug.</th>
+                </tr>
+              </thead>
+              <tbody id="results-table-body">
+                <tr>
+                  <td colspan="10">Run an uploaded audio test to add a result.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <p class="support-note" id="support-note"></p>
+        <p class="engine-note">
+          Model engine: OpenAI Whisper through a local Python backend.
+        </p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
