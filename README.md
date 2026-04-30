@@ -173,8 +173,8 @@ WER = (S + D + I) / N
 
 ## Authors
 
-Aarobh Kumar  
-Apeksha S. Gulhane  
+Aarobh Kumar  (25CS60R56)
+Apeksha S. Gulhane  (25CS60R58)
 
 Under Prof. K. Sreenivasa Rao  
 IIT Kharagpur  
