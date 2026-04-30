@@ -32,7 +32,7 @@ This project is organized into 4 phases:
 
 ---
 
-## Project Structure
+## Project file Structure
 
 ```
 ├── PPT/
